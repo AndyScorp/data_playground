@@ -3,8 +3,8 @@ import pandas as pd
 from io import StringIO
 
 # Step 1: Retrieve the list of tr IDs
-api_key_hash = "032eaea3"
-url = 'https://api.xy.com/list'
+api_key_hash = "032eaea32ad34a1acc345c2"  # Replace it with your API key, TIPS: This is just code example. Avoid hardcoding API keys; use environment variables
+url = 'https://api.eu.navixy.com/v2/tracker/list' # Replace it, depending on your region
 headers = {'Content-Type': 'application/json'}
 data = {'hash': api_key_hash}
 
@@ -13,15 +13,17 @@ tracker_list = response.json()['list']
 tracker_ids = [tracker['id'] for tracker in tracker_list]
 
 # Step 2: Retrieve raw data for each tr ID
-raw_data_url = 'https://api.xy.com/read'
+raw_data_url = 'https://api.eu.navixy.com/dwh/v1/tracker/raw_data/read'
 raw_data_headers = {
     'accept': 'text/csv',
     'Content-Type': 'application/json'
 }
 
+# TIPS: Refactor into functions for readability and reuse 
+
 # Define the time range and columns for the raw data request
-from_time = "2024-07-01T00:00:00Z"
-to_time = "2024-07-08T23:59:59Z"
+from_time = "2025-01-01T00:00:00Z"
+to_time = "2025-01-08T23:59:59Z"
 columns = [
     "lat",
     "lng",
@@ -30,6 +32,8 @@ columns = [
 
 # List to store DataFrames
 dataframes = []
+
+# TIPS: Consider multithreading to speed up data collection if required
 
 for tracker_id in tracker_ids:
     raw_data_payload = {
@@ -58,6 +62,8 @@ for tracker_id in tracker_ids:
 
 # Step 3 Concatenate all DataFrames
 final_df = pd.concat(dataframes, ignore_index=True)
+
+#TIPS: Add timestamp or context to filenames for versioning if you do extraction on regular basis
 
 # Save the final DataFrame to a CSV file
 final_df.to_csv('all_raw_data.csv', index=False)
